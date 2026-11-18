@@ -35,6 +35,25 @@ The x8 link is a physical/firmware link-training issue. A standard guarded PCIe
 retrain did not change it; cold power-off, reseating, riser/slot inspection, or
 BIOS inspection is required before re-testing.
 
+## PyTorch/DDP validation (2026-11-10)
+
+Both nodes were configured with isolated PyTorch 2.11.0+cu128 environments and
+NCCL 2.28.9. Single-node 4/8-GPU all-reduce and DDP tests passed. A two-node
+16-GPU DDP smoke test completed five forward/backward/optimizer steps with
+`checksum_spread=0`, so gradient synchronization was correct.
+
+The nodes expose dedicated 100GbE links with MTU 9000 (`10.0.10.13` and
+`10.0.10.14`). NCCL was pinned to those interfaces. A 256 MiB 16-GPU all-reduce
+measured approximately 0.175 GB/s on the non-GDR RoCE/IB path and 0.775 GB/s
+over TCP on the same 100GbE links. The tested environment therefore sets
+`NCCL_IB_DISABLE=1` until GPU Direct RDMA is repaired.
+
+`nvidia-peermem.ko` exists and matches the 610.43.02 driver version, but loading
+it returns `Invalid argument` on both nodes. The running Ubuntu kernel does not
+export the peer-memory registration API, and NCCL logs `GPU Direct RDMA
+Disabled`. This is a kernel/RDMA stack compatibility issue, not a PyTorch
+correctness failure.
+
 ## NCCL note
 
 The preinstalled NCCL package initially failed with `CUDA driver is a stub

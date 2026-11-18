@@ -16,6 +16,11 @@ mutation scripts.
   reciprocal peer mapping is enabled.
 - Four fixed cross-group bridge pairs provide about 56–62 GB/s aggregate one-way
   throughput when transfers are striped and scheduled concurrently.
+- Both nodes have an isolated PyTorch 2.11.0+cu128 environment with NCCL 2.28.9.
+- Single-node 4/8-GPU DDP and two-node 16-GPU DDP correctness tests pass.
+- The dedicated 100GbE interfaces are the preferred inter-node path. With the
+  current kernel, TCP is faster than the non-GDR RoCE path, so the runbook sets
+  `NCCL_IB_DISABLE=1`.
 
 ## Recommended operating model
 
@@ -48,6 +53,8 @@ direction degradation observed when every peer mapping is active.
 - [`docs/solution-plan.md`](docs/solution-plan.md): options, trade-offs, and rollout plan.
 - [`docs/validation-results.md`](docs/validation-results.md): sanitized measured results.
 - [`docs/reproduction.md`](docs/reproduction.md): safe benchmark procedure.
+- [`docs/pytorch-distributed.md`](docs/pytorch-distributed.md): PyTorch setup,
+  monitoring commands, launch examples, and measured distributed results.
 - [`scripts/cuda-p2p-pair-benchmark.py`](scripts/cuda-p2p-pair-benchmark.py): one-way and bidirectional pair test.
 - [`scripts/cuda-p2p-relay-benchmark.py`](scripts/cuda-p2p-relay-benchmark.py): direct versus serial relay probe.
 
